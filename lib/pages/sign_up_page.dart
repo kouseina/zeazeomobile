@@ -282,7 +282,9 @@ class _SignUpPageState extends State<SignUpPage> {
       void onClick() async {
         if(isLoading) return;
 
-        isLoading = true;
+        setState(() {
+          isLoading = true;
+        });
 
         var response = await  AuthProvider().register(
           name: nameController.text, 
@@ -303,7 +305,9 @@ class _SignUpPageState extends State<SignUpPage> {
           ));
         }
 
-        isLoading = false;
+        setState(() {
+          isLoading = false;
+        });
     }
 
       return Container(
@@ -318,7 +322,10 @@ class _SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(
+          child:
+          isLoading ? 
+          const SizedBox(height: 20,width: 20, child: CircularProgressIndicator(color: Colors.white)) :
+           Text(
             'Sign Up',
             style: primaryTextStyle.copyWith(
               fontSize: 16,

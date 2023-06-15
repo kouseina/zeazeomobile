@@ -169,7 +169,9 @@ class _SignInPageState extends State<SignInPage> {
       void onClick() async {
         if(isLoading) return;
 
-        isLoading = true;
+        setState(() {
+          isLoading = true;
+        });
 
         var response = await  AuthProvider().login(
           email: emailController.text, 
@@ -187,7 +189,9 @@ class _SignInPageState extends State<SignInPage> {
           ));
         }
 
-        isLoading = false;
+        setState(() {
+          isLoading = false;
+        });
     }
 
       return Container(
@@ -202,7 +206,10 @@ class _SignInPageState extends State<SignInPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(
+          child:
+          isLoading ? 
+          const SizedBox(height: 20,width: 20, child: CircularProgressIndicator(color: Colors.white)) :
+          Text(
             'Sign In',
             style: primaryTextStyle.copyWith(
               fontSize: 16,
