@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zeazeoshop/models/user_model.dart';
 import 'package:zeazeoshop/services/auth_service.dart';
 
@@ -28,7 +31,9 @@ class AuthProvider with ChangeNotifier {
         phone: phone,
       );
 
-      _user = user;
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('user', jsonEncode(user.toJson()));
       return true;
     } catch (e) {
       print('error register : $e');
@@ -36,21 +41,23 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Future<bool> login({
-  //   String? email,
-  //   String? password,
-  // }) async {
-  //   try {
-  //     UserModel user = await AuthService().login(
-  //       email: email,
-  //       password: password,
-  //     );
+  Future<bool> login({
+    String? email,
+    String? password,
+  }) async {
+    try {
+      UserModel user = await AuthService().login(
+        email: email,
+        password: password,
+      );
 
-  //     _user = user;
-  //     return true;
-  //   } catch (e) {
-  //     print(e);
-  //     return false;
-  //   }
-  // }
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('user', jsonEncode(user.toJson()));
+      return true;
+    } catch (e) {
+      print('error login : $e');
+      return false;
+    }
+  }
 }

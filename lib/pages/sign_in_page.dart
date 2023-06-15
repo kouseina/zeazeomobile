@@ -1,9 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:zeazeoshop/providers/auth_provider.dart';
 import 'package:zeazeoshop/theme.dart';
 
-class SignInPage extends StatelessWidget {
+class SignInPage extends StatefulWidget {
+  @override
+  State<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
+  late final TextEditingController emailController;
+  late final TextEditingController passwordController;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+    emailController.dispose();
+    passwordController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+  
     Widget header() {
       return Container(
         margin: EdgeInsets.only(top: 30),
@@ -66,6 +95,7 @@ class SignInPage extends StatelessWidget {
                     ),
                     Expanded(
                         child: TextFormField(
+                      controller: emailController,
                       style: primaryTextStyle,
                       decoration: InputDecoration.collapsed(
                         hintText: 'Masukan Email Anda',
@@ -118,6 +148,7 @@ class SignInPage extends StatelessWidget {
                     ),
                     Expanded(
                         child: TextFormField(
+                      controller: passwordController,
                       style: primaryTextStyle,
                       obscureText: true,
                       decoration: InputDecoration.collapsed(
@@ -135,14 +166,36 @@ class SignInPage extends StatelessWidget {
     }
 
     Widget SignInButton() {
+      void onClick() async {
+        if(isLoading) return;
+
+        isLoading = true;
+
+        var response = await  AuthProvider().login(
+          email: emailController.text, 
+          password: passwordController.text, 
+        );
+
+        if(response) {
+          Navigator.pushReplacementNamed(context, '/home');
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Sign in success'),
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Please check all field'),
+          ));
+        }
+
+        isLoading = false;
+    }
+
       return Container(
         height: 50,
         width: double.infinity,
         margin: EdgeInsets.only(top: 30),
         child: TextButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/home');
-          },
+          onPressed: onClick,
           style: TextButton.styleFrom(
             backgroundColor: primaryColor,
             shape: RoundedRectangleBorder(

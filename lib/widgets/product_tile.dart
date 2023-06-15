@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:zeazeoshop/models/product_model/product_item_model.dart';
 import 'package:zeazeoshop/theme.dart';
 
 class ProductTile extends StatelessWidget {
+  ProductItemModel item;
+
+  ProductTile({super.key, required this.item});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -16,7 +21,18 @@ class ProductTile extends StatelessWidget {
         ),
         child: Row(
           children: [
+
+            if(item.galleries?.isNotEmpty ?? false)
             ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.network(
+                item.galleries?.first.url ?? '',
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
+            )
+            else ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Image.asset(
                 'assets/image_shoes.png',
@@ -33,7 +49,7 @@ class ProductTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Wanita',
+                    item.category?.name ?? '',
                     style: secondaryTextStyle.copyWith(
                       fontSize: 12,
                     ),
@@ -42,7 +58,7 @@ class ProductTile extends StatelessWidget {
                     height: 6,
                   ),
                   Text(
-                    'Gamis Sanika - Sakura Pink',
+                    item.name ?? '',
                     style: primaryTextStyle.copyWith(
                       fontSize: 16,
                       fontWeight: semiBold,
@@ -52,7 +68,7 @@ class ProductTile extends StatelessWidget {
                     height: 6,
                   ),
                   Text(
-                    '200000',
+                    '\$${item.price}',
                     style: priceTextStyle.copyWith(
                       fontWeight: medium,
                     ),

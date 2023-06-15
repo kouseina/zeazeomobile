@@ -293,7 +293,14 @@ class _SignUpPageState extends State<SignUpPage> {
         );
 
         if(response) {
-          Navigator.pushNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/home');
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Sign up success'),
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Please check all field'),
+          ));
         }
 
         isLoading = false;

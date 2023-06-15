@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:zeazeoshop/models/product_model/product_item_model.dart';
 import 'package:zeazeoshop/theme.dart';
 
 class ProductCard extends StatelessWidget {
+  ProductItemModel item;
+
+  ProductCard({required this.item});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -24,7 +29,14 @@ class ProductCard extends StatelessWidget {
             SizedBox(
               height: 30,
             ),
-            Image.asset(
+           if(item.galleries?.isNotEmpty ?? false)
+           Image.network(
+              item.galleries?.first.url ?? '',
+              width: 215,
+              height: 150,
+              fit: BoxFit.cover,
+            )
+            else Image.asset(
               'assets/image_shoes.png',
               width: 215,
               height: 150,
@@ -38,7 +50,7 @@ class ProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pakaian Perempuan',
+                    item.name ?? '',
                     style: secondaryTextStyle.copyWith(
                       fontSize: 12,
                     ),
@@ -47,7 +59,7 @@ class ProductCard extends StatelessWidget {
                     height: 6,
                   ),
                   Text(
-                    'Gamis Sanika - Sakura Pink',
+                    item.description ?? '',
                     style: blackTextStyle.copyWith(
                       fontSize: 18,
                       fontWeight: semiBold,
@@ -58,7 +70,7 @@ class ProductCard extends StatelessWidget {
                     height: 6,
                   ),
                   Text(
-                    '200000',
+                    '\$${item.price}',
                     style: priceTextStyle.copyWith(
                       fontSize: 14,
                       fontWeight: medium,

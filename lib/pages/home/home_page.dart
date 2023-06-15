@@ -1,9 +1,77 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zeazeoshop/models/product_model/product_item_model.dart';
+import 'package:zeazeoshop/models/user_model.dart';
+import 'package:zeazeoshop/providers/auth_provider.dart';
+import 'package:zeazeoshop/services/product_service.dart';
 import 'package:zeazeoshop/theme.dart';
 import 'package:zeazeoshop/widgets/product_card.dart';
 import 'package:zeazeoshop/widgets/product_tile.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  UserModel? user;
+  var categoriesList = <Map<String, dynamic>>[];
+  var propularProductsList = <ProductItemModel>[];
+  var newProductsList = <ProductItemModel>[];
+
+  var selectedCategoryId = 1;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    getUser();
+    getAllCategories();
+    getPopularProducts();
+    getNewProducts();
+  }
+
+  void getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      user = UserModel.fromJson(jsonDecode(prefs.getString('user') ?? ''));
+    });
+  }
+
+  void getAllCategories() async {
+    var response = await ProductService().getAllCategories();
+
+    setState(() {
+      categoriesList = response;
+    });
+
+    print("category : $categoriesList");
+  }
+
+  void getPopularProducts() async {
+    var response = await ProductService().getAllProducts();
+
+    setState(() {
+       propularProductsList = response;
+    });
+
+    print("popular products : $propularProductsList");
+  }
+
+  void getNewProducts() async {
+    var response = await ProductService().getAllProducts();
+
+    setState(() {
+       newProductsList = response;
+    });
+
+    print("new products : $newProductsList");
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget header() {
@@ -20,14 +88,14 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hallo, Daffa',
+                    'Hallo, ${user?.name}',
                     style: primaryTextStyle.copyWith(
                       fontSize: 24,
                       fontWeight: semiBold,
                     ),
                   ),
                   Text(
-                    '@mdffkr',
+                    '@${user?.username}',
                     style: subtitleTextStyle.copyWith(
                       fontSize: 16,
                     ),
@@ -57,96 +125,50 @@ class HomePage extends StatelessWidget {
         margin: EdgeInsets.only(
           top: defaultMargin,
         ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              SizedBox(
-                width: defaultMargin,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: primaryColor,
-                ),
-                child: Text(
-                  'Wanita',
-                  style: primaryTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
+        child: SizedBox(
+          height: 40,
+          child: ListView.builder(
+            shrinkWrap: false,
+            scrollDirection: Axis.horizontal,
+            itemCount: categoriesList.length,
+            itemBuilder: (context, index) {
+            var item = categoriesList[index];
+            bool isSelected = selectedCategoryId == (item['id'] ?? 0);
+
+            return Padding(
+              padding: EdgeInsets.only(left: index == 0 ? defaultMargin : 0,right: 16),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedCategoryId = (item['id'] ?? 0);
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: isSelected ? primaryColor : transparentColor,
+                    border: Border.all(
+                      color: isSelected ? transparentColor : subtitleColor,
+                    ),
+                  ),
+                  child: Text(
+                    item['name'] ?? '',
+                    style: isSelected ? primaryTextStyle.copyWith(
+                      fontSize: 13,
+                      fontWeight: medium,
+                    ) : subtitleTextStyle.copyWith(
+                      fontSize: 13,
+                      fontWeight: medium,
+                    ),
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Pria',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Anak Perempuan',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                margin: EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: subtitleColor,
-                  ),
-                  color: transparentColor,
-                ),
-                child: Text(
-                  'Anak Laki',
-                  style: subtitleTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: medium,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },),
         ),
       );
     }
@@ -170,24 +192,18 @@ class HomePage extends StatelessWidget {
 
     Widget popularProducts() {
       return Container(
+        height: 300,
         margin: EdgeInsets.only(top: 14),
-        child: SingleChildScrollView(
+        child: ListView.builder(
+          shrinkWrap: true,
           scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              SizedBox(
-                width: defaultMargin,
-              ),
-              Row(
-                children: [
-                  ProductCard(),
-                  ProductCard(),
-                  ProductCard(),
-                ],
-              ),
-            ],
-          ),
-        ),
+          itemCount: propularProductsList.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding:  EdgeInsets.only(left: index == 0 ? defaultMargin : 0),
+              child: ProductCard(item: propularProductsList[index]),
+            );
+        },)
       );
     }
 
@@ -213,13 +229,13 @@ class HomePage extends StatelessWidget {
         margin: EdgeInsets.only(
           top: 14,
         ),
-        child: Column(
-          children: [
-            ProductTile(),
-            ProductTile(),
-            ProductTile(),
-            ProductTile(),
-          ],
+        child: ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: newProductsList.length,
+          itemBuilder: (context, index) {
+            return ProductTile(item: newProductsList[index],);
+          },
         ),
       );
     }
