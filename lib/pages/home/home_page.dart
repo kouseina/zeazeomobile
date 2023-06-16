@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getPopularProducts() async {
-    var response = await ProductService().getAllProducts();
+    var response = await ProductService().getAllProducts(params: {'tags': 'popular'});
 
     setState(() {
        propularProductsList = response;

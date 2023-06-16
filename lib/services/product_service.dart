@@ -4,13 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:zeazeoshop/models/product_model/product_item_model.dart';
 
 class ProductService {
-  final String _baseUrl = 'https://shamo-backend.buildwithangga.id/api';
+  final String _baseUrl = 'shamo-backend.buildwithangga.id';
   final Map<String, String> _headers = {'Content-Type': 'application/json; charset=UTF-8'};
 
   Future<List<Map<String, dynamic>>> getAllCategories() async {
     try {
       var response = await http.get(
-        Uri.parse('$_baseUrl/categories'),
+        Uri.https(_baseUrl, '/api/categories'),
         headers: _headers,
       );
 
@@ -32,10 +32,10 @@ class ProductService {
     }
   }
 
-  Future<List<ProductItemModel>> getAllProducts() async {
+  Future<List<ProductItemModel>> getAllProducts({Map<String, dynamic>? params}) async {
     try {
       var response = await http.get(
-        Uri.parse('$_baseUrl/products'),
+        Uri.https(_baseUrl, '/api/products', params),
         headers: _headers,
       );
 
