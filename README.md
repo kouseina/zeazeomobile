@@ -1,16 +1,22 @@
-# zeazeo
+## Tools Version
 
-A new Flutter project.
+Flutter 3.10.4 • channel stable • https://github.com/flutter/flutter.git </br>
+Tools • Dart 3.0.3 • DevTools 2.23.1 </br>
 
-## Getting Started
+## How to Use 
 
-This project is a starting point for a Flutter application.
+**Step 1:**
 
-A few resources to get you started if this is your first Flutter project:
+Download or clone this repo by using the link below:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```
+https://github.com/biasa-aja/zeazeomobile.git
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+**Step 2:**
+
+Go to project root and execute the following command in console to get the required dependencies: 
+
+```
+flutter pub get 
+```
