@@ -1,8 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:zeazeoshop/models/cart_model/cart_item_model.dart';
 import 'package:zeazeoshop/theme.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 import 'package:zeazeoshop/widgets/cart_card.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  var cart = <CartItemModel>[];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    setState(() {
+      cart = SharedPrefs().cart ?? [];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     PreferredSizeWidget header() {
@@ -76,13 +95,16 @@ class CartPage extends StatelessWidget {
     }
 
     Widget content() {
-      return ListView(
+      return ListView.builder(
+        itemCount: cart.length,
         padding: EdgeInsets.symmetric(
           horizontal: defaultMargin,
         ),
-        children: [
-          CartCard(),
-        ],
+        itemBuilder: (context, index) {
+          var item = cart[index];
+
+          return CartCard(cartItemModel: item);
+        },
       );
     }
 

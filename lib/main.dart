@@ -9,8 +9,13 @@ import 'package:zeazeoshop/pages/product_page.dart';
 import 'package:zeazeoshop/pages/sign_in_page.dart';
 import 'package:zeazeoshop/pages/sign_up_page.dart';
 import 'package:zeazeoshop/pages/splash_page.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefs().init();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

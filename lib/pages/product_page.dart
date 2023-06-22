@@ -1,6 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:zeazeoshop/models/cart_model/cart_item_model.dart';
+import 'package:zeazeoshop/models/product_model/product_item_model.dart';
 import 'package:zeazeoshop/theme.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 
 class ProductPage extends StatefulWidget {
   @override
@@ -25,9 +28,21 @@ class _ProductPageState extends State<ProductPage> {
 
   int currentIndex = 0;
   bool isWishlist = false;
+  var cart = <CartItemModel>[];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    cart = SharedPrefs().cart ?? [];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final ProductItemModel? productItemModel =
+        ModalRoute.of(context)!.settings.arguments as ProductItemModel?;
+
     Future<void> showSuccesDialog() async {
       return showDialog(
         context: context,
@@ -105,6 +120,19 @@ class _ProductPageState extends State<ProductPage> {
       );
     }
 
+    void addToCart() {
+      cart.add(
+        CartItemModel(
+          productItemModel: productItemModel,
+          quantity: 1,
+        ),
+      );
+
+      SharedPrefs().cart = cart;
+
+      showSuccesDialog();
+    }
+
     Widget indicator(int index) {
       return Container(
         width: currentIndex == index ? 16 : 4,
@@ -164,36 +192,47 @@ class _ProductPageState extends State<ProductPage> {
               ],
             ),
           ),
-          CarouselSlider(
-            items: images
-                .map(
-                  (image) => Image.asset(
-                    image,
-                    width: MediaQuery.of(context).size.width,
-                    height: 310,
-                    fit: BoxFit.cover,
+          if (productItemModel?.galleries?.isNotEmpty ?? false)
+            Column(
+              children: [
+                CarouselSlider(
+                  items: (productItemModel?.galleries ?? [])
+                      .map(
+                        (image) => Image.network(
+                          image.url ?? '',
+                          width: MediaQuery.of(context).size.width,
+                          height: 310,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                      .toList(),
+                  options: CarouselOptions(
+                    initialPage: 0,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        currentIndex = index;
+                      });
+                    },
                   ),
-                )
-                .toList(),
-            options: CarouselOptions(
-              initialPage: 0,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  currentIndex = index;
-                });
-              },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: (productItemModel?.galleries ?? []).map((e) {
+                    index++;
+                    return indicator(index);
+                  }).toList(),
+                ),
+              ],
+            )
+          else
+            Container(
+              height: 350,
+              width: MediaQuery.of(context).size.width,
+              color: backgroundColor6,
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: images.map((e) {
-              index++;
-              return indicator(index);
-            }).toList(),
-          ),
         ],
       );
     }
@@ -225,14 +264,14 @@ class _ProductPageState extends State<ProductPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Gamis Sanika - Sakura Pink',
+                          productItemModel?.name ?? '',
                           style: primaryTextStyle.copyWith(
                             fontSize: 10,
                             fontWeight: semiBold,
                           ),
                         ),
                         Text(
-                          'Perempuan',
+                          productItemModel?.category?.name ?? '',
                           style: secondaryTextStyle.copyWith(
                             fontSize: 12,
                           ),
@@ -297,7 +336,7 @@ class _ProductPageState extends State<ProductPage> {
                     style: primaryTextStyle,
                   ),
                   Text(
-                    'Rp 200000',
+                    '\$${productItemModel?.price ?? 0}',
                     style: priceTextStyle.copyWith(
                       fontSize: 16,
                       fontWeight: semiBold,
@@ -327,7 +366,7 @@ class _ProductPageState extends State<ProductPage> {
                     height: 12,
                   ),
                   Text(
-                    'Gamis ini dilengkapi dengan bahan terbaik dan mudah untuk digunakan',
+                    productItemModel?.description ?? '',
                     style: subtitleTextStyle.copyWith(
                       fontWeight: light,
                     ),
@@ -405,9 +444,7 @@ class _ProductPageState extends State<ProductPage> {
                     child: Container(
                       height: 54,
                       child: TextButton(
-                        onPressed: () {
-                          showSuccesDialog();
-                        },
+                        onPressed: addToCart,
                         style: TextButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

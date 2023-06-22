@@ -11,7 +11,7 @@ class ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/product');
+        Navigator.pushNamed(context, '/product', arguments: item);
       },
       child: Container(
         margin: EdgeInsets.only(
@@ -21,26 +21,26 @@ class ProductTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-
-            if(item.galleries?.isNotEmpty ?? false)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                item.galleries?.first.url ?? '',
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
+            if (item.galleries?.isNotEmpty ?? false)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  item.galleries?.first.url ?? '',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  'assets/image_shoes.png',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                ),
               ),
-            )
-            else ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                'assets/image_shoes.png',
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-              ),
-            ),
             SizedBox(
               width: 12,
             ),

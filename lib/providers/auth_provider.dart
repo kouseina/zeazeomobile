@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zeazeoshop/models/user_model.dart';
 import 'package:zeazeoshop/services/auth_service.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 
 class AuthProvider with ChangeNotifier {
   UserModel? _user;
@@ -31,9 +31,7 @@ class AuthProvider with ChangeNotifier {
         phone: phone,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-
-      await prefs.setString('user', jsonEncode(user.toJson()));
+      SharedPrefs().user = user;
       return true;
     } catch (e) {
       print('error register : $e');
@@ -51,9 +49,7 @@ class AuthProvider with ChangeNotifier {
         password: password,
       );
 
-      final prefs = await SharedPreferences.getInstance();
-
-      await prefs.setString('user', jsonEncode(user.toJson()));
+      SharedPrefs().user = user;
       return true;
     } catch (e) {
       print('error login : $e');

@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zeazeoshop/models/user_model.dart';
 import 'package:zeazeoshop/theme.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -17,16 +15,13 @@ class _SplashPageState extends State<SplashPage> {
     // TODO: implement initState
     super.initState();
 
-    
     navigateTo();
   }
 
   void navigateTo() async {
-    final prefs = await SharedPreferences.getInstance();
-
     await Future.delayed(Duration(seconds: 2));
 
-    if (prefs.getString('user') != null) {
+    if (SharedPrefs().user != null) {
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       Navigator.pushReplacementNamed(context, '/sign-in');

@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zeazeoshop/models/product_model/product_item_model.dart';
 import 'package:zeazeoshop/models/user_model.dart';
 import 'package:zeazeoshop/providers/auth_provider.dart';
 import 'package:zeazeoshop/services/product_service.dart';
 import 'package:zeazeoshop/theme.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 import 'package:zeazeoshop/widgets/product_card.dart';
 import 'package:zeazeoshop/widgets/product_tile.dart';
 
@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  UserModel? user;
+  var user = SharedPrefs().user;
   var categoriesList = <Map<String, dynamic>>[];
   var propularProductsList = <ProductItemModel>[];
   var newProductsList = <ProductItemModel>[];
@@ -27,19 +27,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    getUser();
     getAllCategories();
     getPopularProducts();
     getNewProducts();
-  }
-
-  void getUser() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      user = UserModel.fromJson(jsonDecode(prefs.getString('user') ?? ''));
-    });
   }
 
   void getAllCategories() async {
@@ -53,10 +43,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void getPopularProducts() async {
-    var response = await ProductService().getAllProducts(params: {'tags': 'popular'});
+    var response = await ProductService().getAllProducts();
 
     setState(() {
-       propularProductsList = response;
+      propularProductsList = response;
     });
 
     print("popular products : $propularProductsList");
@@ -66,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     var response = await ProductService().getAllProducts();
 
     setState(() {
-       newProductsList = response;
+      newProductsList = response;
     });
 
     print("new products : $newProductsList");
@@ -132,43 +122,47 @@ class _HomePageState extends State<HomePage> {
             scrollDirection: Axis.horizontal,
             itemCount: categoriesList.length,
             itemBuilder: (context, index) {
-            var item = categoriesList[index];
-            bool isSelected = selectedCategoryId == (item['id'] ?? 0);
+              var item = categoriesList[index];
+              bool isSelected = selectedCategoryId == (item['id'] ?? 0);
 
-            return Padding(
-              padding: EdgeInsets.only(left: index == 0 ? defaultMargin : 0,right: 16),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    selectedCategoryId = (item['id'] ?? 0);
-                  });
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: isSelected ? primaryColor : transparentColor,
-                    border: Border.all(
-                      color: isSelected ? transparentColor : subtitleColor,
+              return Padding(
+                padding: EdgeInsets.only(
+                    left: index == 0 ? defaultMargin : 0, right: 16),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedCategoryId = (item['id'] ?? 0);
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
                     ),
-                  ),
-                  child: Text(
-                    item['name'] ?? '',
-                    style: isSelected ? primaryTextStyle.copyWith(
-                      fontSize: 13,
-                      fontWeight: medium,
-                    ) : subtitleTextStyle.copyWith(
-                      fontSize: 13,
-                      fontWeight: medium,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: isSelected ? primaryColor : transparentColor,
+                      border: Border.all(
+                        color: isSelected ? transparentColor : subtitleColor,
+                      ),
+                    ),
+                    child: Text(
+                      item['name'] ?? '',
+                      style: isSelected
+                          ? primaryTextStyle.copyWith(
+                              fontSize: 13,
+                              fontWeight: medium,
+                            )
+                          : subtitleTextStyle.copyWith(
+                              fontSize: 13,
+                              fontWeight: medium,
+                            ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },),
+              );
+            },
+          ),
         ),
       );
     }
@@ -192,19 +186,19 @@ class _HomePageState extends State<HomePage> {
 
     Widget popularProducts() {
       return Container(
-        height: 300,
-        margin: EdgeInsets.only(top: 14),
-        child: ListView.builder(
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          itemCount: propularProductsList.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding:  EdgeInsets.only(left: index == 0 ? defaultMargin : 0),
-              child: ProductCard(item: propularProductsList[index]),
-            );
-        },)
-      );
+          height: 300,
+          margin: EdgeInsets.only(top: 14),
+          child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: propularProductsList.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.only(left: index == 0 ? defaultMargin : 0),
+                child: ProductCard(item: propularProductsList[index]),
+              );
+            },
+          ));
     }
 
     Widget newArrivalsTitle() {
@@ -234,7 +228,9 @@ class _HomePageState extends State<HomePage> {
           shrinkWrap: true,
           itemCount: newProductsList.length,
           itemBuilder: (context, index) {
-            return ProductTile(item: newProductsList[index],);
+            return ProductTile(
+              item: newProductsList[index],
+            );
           },
         ),
       );

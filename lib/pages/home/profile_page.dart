@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zeazeoshop/models/user_model.dart';
 import 'package:zeazeoshop/theme.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 
 class ProfilePage extends StatelessWidget {
+  var user = SharedPrefs().user;
+
   @override
   Widget build(BuildContext context) {
     Widget header() {
@@ -31,14 +34,14 @@ class ProfilePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hallo, Daffa',
+                        'Hallo, ${user?.name ?? ''}',
                         style: primaryTextStyle.copyWith(
                           fontSize: 24,
                           fontWeight: semiBold,
                         ),
                       ),
                       Text(
-                        '@mdffkr',
+                        '@${user?.username ?? ''}',
                         style: subtitleTextStyle.copyWith(
                           fontSize: 16,
                         ),
@@ -48,9 +51,7 @@ class ProfilePage extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    final prefs = await SharedPreferences.getInstance();
-
-                    prefs.clear();
+                    SharedPrefs().clear();
 
                     Navigator.pushNamedAndRemoveUntil(
                         context, '/sign-in', (route) => false);

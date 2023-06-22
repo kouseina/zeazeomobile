@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:zeazeoshop/models/user_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:zeazeoshop/utils/env.dart';
 
 class AuthService {
-  String baseUrl = 'https://99c9-36-88-30-194.ngrok-free.app/api';
 
   Future<UserModel> register({
     String? name,
@@ -23,7 +23,7 @@ class AuthService {
     });
 
     var response = await http.post(
-      Uri.parse('$baseUrl/register'),
+      Uri.https(Env.baseUrl, '/api/register'),
       headers: headers,
       body: body,
     );
@@ -55,7 +55,7 @@ class AuthService {
     });
 
     var response = await http.post(
-      Uri.parse('$baseUrl/login'),
+      Uri.https(Env.baseUrl, '/api/login'),
       headers: headers,
       body: body,
     );

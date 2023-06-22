@@ -11,7 +11,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/product');
+        Navigator.pushNamed(context, '/product', arguments: item);
       },
       child: Container(
         width: 215,
@@ -29,19 +29,20 @@ class ProductCard extends StatelessWidget {
             SizedBox(
               height: 30,
             ),
-           if(item.galleries?.isNotEmpty ?? false)
-           Image.network(
-              item.galleries?.first.url ?? '',
-              width: 215,
-              height: 150,
-              fit: BoxFit.cover,
-            )
-            else Image.asset(
-              'assets/image_shoes.png',
-              width: 215,
-              height: 150,
-              fit: BoxFit.cover,
-            ),
+            if (item.galleries?.isNotEmpty ?? false)
+              Image.network(
+                item.galleries?.first.url ?? '',
+                width: 215,
+                height: 150,
+                fit: BoxFit.cover,
+              )
+            else
+              Image.asset(
+                'assets/image_shoes.png',
+                width: 215,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
             Container(
               margin: EdgeInsets.symmetric(
                 horizontal: 20,
