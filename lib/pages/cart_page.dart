@@ -11,15 +11,56 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   var cart = <CartItemModel>[];
+  var totalPrice = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
+    _getCartWithDistinct();
+  }
+
+  void _getCartWithDistinct() {
+    var idSet = <int>{};
+    var distinct = <CartItemModel>[];
+    for (var d in SharedPrefs().cart ?? <CartItemModel>[]) {
+      if (d.productItemModel?.id == null) continue;
+
+      if (idSet.add(d.productItemModel?.id ?? 0)) {
+        distinct.add(d);
+      }
+
+      ///
+      else {
+        int existItemIndex = distinct.indexWhere((element) =>
+            element.productItemModel?.id == d.productItemModel?.id);
+
+        distinct[existItemIndex].quantity =
+            (distinct[existItemIndex].quantity ?? 0) + (d.quantity ?? 0);
+      }
+    }
+
     setState(() {
-      cart = SharedPrefs().cart ?? [];
+      cart = distinct;
     });
+
+    _updateTotalPrice();
+  }
+
+  void _updateTotalPrice() {
+    int totalPrice = 0;
+
+    for (var element in cart) {
+      int pricePerElement =
+          (element.quantity ?? 0) * (element.productItemModel?.price ?? 0);
+
+      setState(() {
+        totalPrice += pricePerElement;
+      });
+    }
+
+    this.totalPrice = totalPrice;
   }
 
   @override
@@ -103,7 +144,60 @@ class _CartPageState extends State<CartPage> {
         itemBuilder: (context, index) {
           var item = cart[index];
 
-          return CartCard(cartItemModel: item);
+          void onTapAdd() {
+            var cartAddedQty = cart.map((e) {
+              if (e.productItemModel?.id == item.productItemModel?.id) {
+                return e.copyWith(quantity: (e.quantity ?? 0) + 1);
+              }
+
+              return e;
+            }).toList();
+
+            setState(() {
+              cart = cartAddedQty;
+            });
+
+            _updateTotalPrice();
+          }
+
+          void onTapMin() {
+            var cartMinQty = <CartItemModel>[];
+
+            for (var e in cart) {
+              if (e.productItemModel?.id == item.productItemModel?.id) {
+                if (e.quantity == 1) continue;
+
+                cartMinQty.add(e.copyWith(quantity: (e.quantity ?? 1) - 1));
+                continue;
+              }
+
+              cartMinQty.add(e);
+            }
+
+            setState(() {
+              cart = cartMinQty;
+            });
+
+            _updateTotalPrice();
+          }
+
+          void onTapRemove() {
+            setState(() {
+              cart = cart
+                  .where((element) =>
+                      element.productItemModel?.id != item.productItemModel?.id)
+                  .toList();
+            });
+
+            _updateTotalPrice();
+          }
+
+          return CartCard(
+            cartItemModel: item,
+            onTapAdd: onTapAdd,
+            onTapMin: onTapMin,
+            onTapRemove: onTapRemove,
+          );
         },
       );
     }
@@ -125,7 +219,7 @@ class _CartPageState extends State<CartPage> {
                     style: primaryTextStyle,
                   ),
                   Text(
-                    '200000',
+                    '\$$totalPrice',
                     style: priceTextStyle.copyWith(
                       fontSize: 16,
                       fontWeight: semiBold,
@@ -144,39 +238,48 @@ class _CartPageState extends State<CartPage> {
             SizedBox(
               height: 30,
             ),
-            Container(
-              height: 50,
-              margin: EdgeInsets.symmetric(
-                horizontal: defaultMargin,
-              ),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/checkout');
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20,
+            IgnorePointer(
+              ignoring: totalPrice == 0,
+              child: Opacity(
+                opacity: totalPrice == 0 ? 0.5 : 1,
+                child: Container(
+                  height: 50,
+                  margin: EdgeInsets.symmetric(
+                    horizontal: defaultMargin,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Lanjut Checkout',
-                      style: primaryTextStyle.copyWith(
-                        fontSize: 16,
-                        fontWeight: semiBold,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/checkout', arguments: {
+                        'cart': cart,
+                        'totalPrice': totalPrice,
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: primaryTextColor,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Lanjut Checkout',
+                          style: primaryTextStyle.copyWith(
+                            fontSize: 16,
+                            fontWeight: semiBold,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: primaryTextColor,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             )
@@ -185,11 +288,18 @@ class _CartPageState extends State<CartPage> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: backgroundColor3,
-      appBar: header(),
-      body: content(),
-      bottomNavigationBar: customBottomNav(),
+    return WillPopScope(
+      onWillPop: () {
+        SharedPrefs().cart = cart;
+
+        return Future.value(true);
+      },
+      child: Scaffold(
+        backgroundColor: backgroundColor3,
+        appBar: header(),
+        body: content(),
+        bottomNavigationBar: customBottomNav(),
+      ),
     );
   }
 }

@@ -1,10 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:zeazeoshop/models/cart_model/cart_item_model.dart';
+import 'package:zeazeoshop/services/product_service.dart';
 import 'package:zeazeoshop/theme.dart';
+import 'package:zeazeoshop/utils/shared_pref.dart';
 import 'package:zeazeoshop/widgets/checkout_card.dart';
 
-class CheckoutPage extends StatelessWidget {
+class CheckoutPage extends StatefulWidget {
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  final String address = 'Yogyakarta';
+  var isLoading = false;
+
   @override
   Widget build(BuildContext context) {
+    List<CartItemModel> cart = (ModalRoute.of(context)!.settings.arguments
+        as Map<String, dynamic>?)?['cart'];
+    int totalPrice = (ModalRoute.of(context)!.settings.arguments
+        as Map<String, dynamic>?)?['totalPrice'];
+
+    void onCheckout() async {
+      if (isLoading) return;
+
+      setState(() {
+        isLoading = true;
+      });
+
+      var items = <Map<String, int>>[];
+
+      for (var element in cart) {
+        items.add({
+          "id": element.productItemModel?.id ?? 0,
+          "quantity": element.quantity ?? 0,
+        });
+      }
+
+      var request = <String, dynamic>{
+        "address": address,
+        "items": items,
+        "status": "PENDING",
+        "total_price": totalPrice,
+        "shipping_price": 0,
+      };
+
+      var response = await ProductService().checkout(request: request);
+
+      if (response) {
+        SharedPrefs().cart = [];
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/checkout-success', (route) => false);
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+    }
+
     PreferredSizeWidget header() {
       return AppBar(
         backgroundColor: backgroundColor1,
@@ -37,8 +90,18 @@ class CheckoutPage extends StatelessWidget {
                     fontWeight: medium,
                   ),
                 ),
-                CheckoutCard(),
-                CheckoutCard(),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: cart.length,
+                  itemBuilder: (context, index) {
+                    var item = cart[index];
+
+                    return CheckoutCard(
+                      cartItemModel: item,
+                    );
+                  },
+                )
               ],
             ),
           ),
@@ -113,7 +176,7 @@ class CheckoutPage extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Yogyakarta',
+                          address,
                           style: primaryTextStyle.copyWith(
                             fontWeight: medium,
                           ),
@@ -158,7 +221,7 @@ class CheckoutPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '2 Item',
+                      '${cart.length} Item',
                       style: primaryTextStyle.copyWith(
                         fontWeight: medium,
                       ),
@@ -178,7 +241,7 @@ class CheckoutPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '200000',
+                      '\$$totalPrice',
                       style: primaryTextStyle.copyWith(
                         fontWeight: medium,
                       ),
@@ -225,7 +288,7 @@ class CheckoutPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '400000',
+                      '\$$totalPrice',
                       style: priceTextStyle.copyWith(
                         fontWeight: semiBold,
                       ),
@@ -250,23 +313,28 @@ class CheckoutPage extends StatelessWidget {
               vertical: defaultMargin,
             ),
             child: TextButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/checkout-success', (route) => false);
-              },
+              onPressed: onCheckout,
               style: TextButton.styleFrom(
                 backgroundColor: primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Checkout Sekarang',
-                style: primaryTextStyle.copyWith(
-                  fontSize: 16,
-                  fontWeight: semiBold,
-                ),
-              ),
+              child: isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: backgroundColor6,
+                      ),
+                    )
+                  : Text(
+                      'Checkout Sekarang',
+                      style: primaryTextStyle.copyWith(
+                        fontSize: 16,
+                        fontWeight: semiBold,
+                      ),
+                    ),
             ),
           ),
         ],

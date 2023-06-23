@@ -11,11 +11,11 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
-  List images = [
-    'assets/image_shoes.png',
-    'assets/image_shoes.png',
-    'assets/image_shoes.png',
-  ];
+  // List images = [
+  //   'assets/image_shoes.png',
+  //   'assets/image_shoes.png',
+  //   'assets/image_shoes.png',
+  // ];
 
   List familiarItems = [
     'assets/image_shoes.png',
@@ -28,15 +28,6 @@ class _ProductPageState extends State<ProductPage> {
 
   int currentIndex = 0;
   bool isWishlist = false;
-  var cart = <CartItemModel>[];
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    cart = SharedPrefs().cart ?? [];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +87,10 @@ class _ProductPageState extends State<ProductPage> {
                     width: 154,
                     height: 44,
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/cart');
+                      },
                       style: TextButton.styleFrom(
                         backgroundColor: primaryColor,
                         shape: RoundedRectangleBorder(
@@ -121,6 +115,8 @@ class _ProductPageState extends State<ProductPage> {
     }
 
     void addToCart() {
+      var cart = SharedPrefs().cart ?? [];
+
       cart.add(
         CartItemModel(
           productItemModel: productItemModel,
@@ -185,9 +181,12 @@ class _ProductPageState extends State<ProductPage> {
                     Icons.chevron_left,
                   ),
                 ),
-                Icon(
-                  Icons.shopping_bag,
-                  color: backgroundColor1,
+                GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/cart'),
+                  child: Icon(
+                    Icons.shopping_bag,
+                    color: backgroundColor1,
+                  ),
                 ),
               ],
             ),

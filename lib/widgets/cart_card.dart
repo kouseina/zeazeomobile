@@ -1,16 +1,21 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-import 'package:zeazeoshop/models/cart_model/cart_item_model.dart';
 
-import 'package:zeazeoshop/models/product_model/product_item_model.dart';
+import 'package:zeazeoshop/models/cart_model/cart_item_model.dart';
 import 'package:zeazeoshop/theme.dart';
 
 class CartCard extends StatelessWidget {
   final CartItemModel? cartItemModel;
+  final void Function()? onTapAdd;
+  final void Function()? onTapMin;
+  final void Function()? onTapRemove;
 
   const CartCard({
     Key? key,
     this.cartItemModel,
+    this.onTapAdd,
+    this.onTapMin,
+    this.onTapRemove,
   }) : super(key: key);
 
   @override
@@ -68,9 +73,12 @@ class CartCard extends StatelessWidget {
               ),
               Column(
                 children: [
-                  Image.asset(
-                    'assets/button_add.png',
-                    width: 16,
+                  InkWell(
+                    onTap: onTapAdd,
+                    child: Image.asset(
+                      'assets/button_add.png',
+                      width: 16,
+                    ),
                   ),
                   SizedBox(
                     height: 2,
@@ -84,9 +92,12 @@ class CartCard extends StatelessWidget {
                   SizedBox(
                     height: 2,
                   ),
-                  Image.asset(
-                    'assets/button_min.png',
-                    width: 16,
+                  InkWell(
+                    onTap: onTapMin,
+                    child: Image.asset(
+                      'assets/button_min.png',
+                      width: 16,
+                    ),
                   ),
                 ],
               ),
@@ -95,23 +106,26 @@ class CartCard extends StatelessWidget {
           SizedBox(
             height: 12,
           ),
-          Row(
-            children: [
-              Image.asset(
-                'assets/icon_remove.png',
-                width: 10,
-              ),
-              SizedBox(
-                width: 4,
-              ),
-              Text(
-                'Remove',
-                style: alertTextStyle.copyWith(
-                  fontSize: 12,
-                  fontWeight: light,
+          InkWell(
+            onTap: onTapRemove,
+            child: Row(
+              children: [
+                Image.asset(
+                  'assets/icon_remove.png',
+                  width: 10,
                 ),
-              ),
-            ],
+                SizedBox(
+                  width: 4,
+                ),
+                Text(
+                  'Remove',
+                  style: alertTextStyle.copyWith(
+                    fontSize: 12,
+                    fontWeight: light,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
