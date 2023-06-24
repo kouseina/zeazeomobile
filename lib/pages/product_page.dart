@@ -202,6 +202,13 @@ class _ProductPageState extends State<ProductPage> {
                           width: MediaQuery.of(context).size.width,
                           height: 310,
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 310,
+                              color: secondaryTextColor,
+                            );
+                          },
                         ),
                       )
                       .toList(),

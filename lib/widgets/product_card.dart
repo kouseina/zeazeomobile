@@ -35,6 +35,13 @@ class ProductCard extends StatelessWidget {
                 width: 215,
                 height: 150,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 150,
+                    width: 215,
+                    color: secondaryTextColor,
+                  );
+                },
               )
             else
               Image.asset(
